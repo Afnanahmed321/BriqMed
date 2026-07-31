@@ -1,6 +1,8 @@
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import CustomCursor from "../components/layout/CustomCursor";
+import Preloader from "../components/layout/Preloader";
 import { Gentium_Book_Plus } from "next/font/google";
 
 const gentium = Gentium_Book_Plus({
@@ -17,6 +19,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={gentium.className}>
+        <Preloader />
+        <CustomCursor />
         <Navbar />
 
         <main className="pt-20">{children}</main>
