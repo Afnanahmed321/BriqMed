@@ -57,14 +57,9 @@ const VIEW_H = 900;
 const PAD_TOP = 90;
 const PAD_BOTTOM = 90;
 
-// Reserve the last chunk of pinned scroll purely for the "destination reached" beat,
-// so the road actually finishes drawing and the last node actually completes
-// instead of the section just stopping mid-story.
 const STEP_PHASE_END = 0.86;
 const COMPLETE_THRESHOLD = 0.9;
 
-// Node positions are generated once, from real geometry — not guessed percentages —
-// so the road is mathematically guaranteed to pass through every card's node.
 function getNodePositions() {
   const usableH = VIEW_H - PAD_TOP - PAD_BOTTOM;
   const positions = [];
@@ -89,110 +84,144 @@ function buildWindingPath(positions) {
 
 export default function Services() {
   const sectionRef = useRef(null);
+  
+  // Desktop Refs
   const pathRef = useRef(null);
   const stepRefs = useRef([]);
   const nodeRefs = useRef([]);
   const completionRef = useRef(null);
   const stepStatesRef = useRef(services.map(() => "future"));
 
+  // Mobile Refs
+  const mobileContainerRef = useRef(null);
+  const mobilePathRef = useRef(null);
+
   const nodePositions = useMemo(() => getNodePositions(), []);
   const pathD = useMemo(() => buildWindingPath(nodePositions), [nodePositions]);
+
+  // Mobile winding path parameters
+  const MOB_W = 300;
+  const MOB_H = services.length * 140;
+  const mobileNodePositions = useMemo(() => {
+    const positions = [];
+    const usableH = MOB_H - 80;
+    for (let i = 0; i < NODE_COUNT; i++) {
+      const y = 40 + (usableH * i) / (NODE_COUNT - 1);
+      const x = i % 2 === 0 ? MOB_W / 2 + 50 : MOB_W / 2 - 50;
+      positions.push({ x, y });
+    }
+    return positions;
+  }, [MOB_H]);
+
+  const mobilePathD = useMemo(() => {
+    let d = `M ${mobileNodePositions[0].x} ${mobileNodePositions[0].y}`;
+    for (let i = 1; i < mobileNodePositions.length; i++) {
+      const prev = mobileNodePositions[i - 1];
+      const curr = mobileNodePositions[i];
+      const midY = (prev.y + curr.y) / 2;
+      d += ` C ${prev.x} ${midY}, ${curr.x} ${midY}, ${curr.x} ${curr.y}`;
+    }
+    return d;
+  }, [mobileNodePositions]);
 
   useEffect(() => {
     let ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      const applyStepState = (index, state, animate = true) => {
-        const step = stepRefs.current[index];
-        const node = nodeRefs.current[index];
-        if (!step) return;
+      // === DESKTOP ANIMATION (Pinned, Winding Path) ===
+      mm.add("(min-width: 1024px)", () => {
+        const applyStepState = (index, state, animate = true) => {
+          const step = stepRefs.current[index];
+          const node = nodeRefs.current[index];
+          if (!step) return;
 
-        const pill = step.querySelector(".step-pill");
-        const pillMark = step.querySelector(".step-pill-mark");
-        const pillTitle = step.querySelector(".step-pill-title");
-        const card = step.querySelector(".step-card");
-        const glow = step.querySelector(".step-glow");
+          const pill = step.querySelector(".step-pill");
+          const pillMark = step.querySelector(".step-pill-mark");
+          const pillTitle = step.querySelector(".step-pill-title");
+          const card = step.querySelector(".step-card");
+          const glow = step.querySelector(".step-glow");
 
-        const set = animate ? gsap.to : gsap.set;
+          const set = animate ? gsap.to : gsap.set;
 
-        if (state === "active") {
-          gsap.set(pill, { display: "none" });
-          gsap.set(card, { display: "block" });
-          gsap.set(step, { zIndex: 20 });
-          if (animate) {
-            gsap.fromTo(
-              card,
-              { opacity: 0, scale: 0.94, y: 6 },
-              { opacity: 1, scale: 1.03, y: 0, duration: 0.55, ease: "power3.out" }
-            );
-            set(glow, { opacity: 1, duration: 0.6 });
-          } else {
-            gsap.set(card, { opacity: 1, scale: 1.03, y: 0 });
-            gsap.set(glow, { opacity: 1 });
-          }
-        } else {
-          gsap.set(card, { display: "none" });
-          gsap.set(pill, { display: "flex" });
-          gsap.set(step, { zIndex: 1 });
-          set(glow, { opacity: 0, duration: 0.3 });
-
-          if (state === "completed") {
-            if (pillMark) pillMark.textContent = "\u2713";
-            set(pill, { opacity: 1, scale: 1, duration: 0.4 });
-            set(pillMark, { backgroundColor: "#111827", color: "#ffffff", duration: 0.4 });
-            set(pillTitle, { color: "#4B5563", opacity: 1, duration: 0.4 });
-          } else {
-            // future
-            if (pillMark) pillMark.textContent = `0${index + 1}`;
-            set(pill, { opacity: 0.45, scale: 0.96, duration: 0.4 });
-            set(pillMark, { backgroundColor: "#E5E7EB", color: "#9CA3AF", duration: 0.4 });
-            set(pillTitle, { color: "#9CA3AF", opacity: 0.7, duration: 0.4 });
-          }
-        }
-
-        if (node) {
           if (state === "active") {
-            gsap.to(node, { attr: { r: 7 }, fill: "#111827", duration: 0.4 });
-          } else if (state === "completed") {
-            gsap.to(node, { attr: { r: 4 }, fill: "#111827", duration: 0.4 });
+            gsap.set(pill, { display: "none" });
+            gsap.set(card, { display: "block" });
+            gsap.set(step, { zIndex: 20 });
+            if (animate) {
+              gsap.fromTo(
+                card,
+                { opacity: 0, scale: 0.94, y: 6 },
+                { opacity: 1, scale: 1.03, y: 0, duration: 0.55, ease: "power3.out" }
+              );
+              set(glow, { opacity: 1, duration: 0.6 });
+            } else {
+              gsap.set(card, { opacity: 1, scale: 1.03, y: 0 });
+              gsap.set(glow, { opacity: 1 });
+            }
           } else {
-            gsap.to(node, { attr: { r: 3 }, fill: "#D1D5DB", duration: 0.4 });
+            gsap.set(card, { display: "none" });
+            gsap.set(pill, { display: "flex" });
+            gsap.set(step, { zIndex: 1 });
+            set(glow, { opacity: 0, duration: 0.3 });
+
+            if (state === "completed") {
+              if (pillMark) pillMark.textContent = "\u2713";
+              set(pill, { opacity: 1, scale: 1, duration: 0.4 });
+              set(pillMark, { backgroundColor: "#111827", color: "#ffffff", duration: 0.4 });
+              set(pillTitle, { color: "#4B5563", opacity: 1, duration: 0.4 });
+            } else {
+              if (pillMark) pillMark.textContent = `0${index + 1}`;
+              set(pill, { opacity: 0.45, scale: 0.96, duration: 0.4 });
+              set(pillMark, { backgroundColor: "#E5E7EB", color: "#9CA3AF", duration: 0.4 });
+              set(pillTitle, { color: "#9CA3AF", opacity: 0.7, duration: 0.4 });
+            }
           }
-        }
 
-        stepStatesRef.current[index] = state;
-      };
-
-      const updateJourney = (progress, animate = true) => {
-        const path = pathRef.current;
-        if (path) {
-          const pathLength = path.getTotalLength();
-          const drawProgress = Math.min(progress / STEP_PHASE_END, 1);
-          gsap.set(path, { strokeDashoffset: pathLength * (1 - drawProgress) });
-        }
-
-        const stepProgress = Math.min(progress / STEP_PHASE_END, 1);
-        const rawIndex = Math.floor(stepProgress * NODE_COUNT);
-        const allComplete = progress >= COMPLETE_THRESHOLD;
-
-        services.forEach((_, i) => {
-          const state = allComplete ? "completed" : i < rawIndex ? "completed" : i === rawIndex ? "active" : "future";
-          if (stepStatesRef.current[i] !== state) {
-            applyStepState(i, state, animate);
+          if (node) {
+            if (state === "active") {
+              gsap.to(node, { attr: { r: 7 }, fill: "#111827", duration: 0.4 });
+            } else if (state === "completed") {
+              gsap.to(node, { attr: { r: 4 }, fill: "#111827", duration: 0.4 });
+            } else {
+              gsap.to(node, { attr: { r: 3 }, fill: "#D1D5DB", duration: 0.4 });
+            }
           }
-        });
 
-        if (completionRef.current) {
-          if (allComplete) {
-            gsap.to(completionRef.current, { opacity: 1, y: 0, duration: 0.5, pointerEvents: "auto" });
-          } else {
-            gsap.to(completionRef.current, { opacity: 0, y: 10, duration: 0.3, pointerEvents: "none" });
+          stepStatesRef.current[index] = state;
+        };
+
+        const updateJourney = (progress, animate = true) => {
+          const path = pathRef.current;
+          if (path) {
+            const pathLength = path.getTotalLength();
+            const drawProgress = Math.min(progress / STEP_PHASE_END, 1);
+            gsap.set(path, { 
+              strokeDasharray: pathLength,
+              strokeDashoffset: pathLength * (1 - drawProgress) 
+            });
           }
-        }
-      };
 
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // initial state: step 0 active, everything else future, road undrawn
+          const stepProgress = Math.min(progress / STEP_PHASE_END, 1);
+          const rawIndex = Math.floor(stepProgress * NODE_COUNT);
+          const allComplete = progress >= COMPLETE_THRESHOLD;
+
+          services.forEach((_, i) => {
+            const state = allComplete ? "completed" : i < rawIndex ? "completed" : i === rawIndex ? "active" : "future";
+            if (stepStatesRef.current[i] !== state) {
+              applyStepState(i, state, animate);
+            }
+          });
+
+          if (completionRef.current) {
+            if (allComplete) {
+              gsap.to(completionRef.current, { opacity: 1, y: 0, duration: 0.5, pointerEvents: "auto" });
+            } else {
+              gsap.to(completionRef.current, { opacity: 0, y: 10, duration: 0.3, pointerEvents: "none" });
+            }
+          }
+        };
+
+        // Initialize Desktop state
         services.forEach((_, i) => applyStepState(i, i === 0 ? "active" : "future", false));
 
         ScrollTrigger.create({
@@ -207,13 +236,51 @@ export default function Services() {
         });
       });
 
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        if (pathRef.current) gsap.set(pathRef.current, { strokeDashoffset: 0 });
-        services.forEach((_, i) => applyStepState(i, "completed", false));
-        if (completionRef.current) {
-          gsap.set(completionRef.current, { opacity: 1, y: 0, pointerEvents: "auto" });
+      // === MOBILE ANIMATION (Natural Scroll, Glowing Winding Path) ===
+      mm.add("(max-width: 1023px)", () => {
+        const path = mobilePathRef.current;
+        if (path) {
+          const pathLength = path.getTotalLength();
+          gsap.set(path, {
+            strokeDasharray: pathLength,
+            strokeDashoffset: pathLength,
+          });
+
+          gsap.to(path, {
+            strokeDashoffset: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: mobileContainerRef.current,
+              start: "top 60%",
+              end: "bottom 60%",
+              scrub: true,
+            },
+          });
         }
+
+        const mobileSteps = gsap.utils.toArray('.mobile-step');
+        mobileSteps.forEach((step) => {
+          const node = step.querySelector('.mobile-node');
+          const card = step.querySelector('.mobile-card');
+          const glow = step.querySelector('.mobile-glow');
+          
+          ScrollTrigger.create({
+            trigger: step,
+            start: "top 60%",
+            onEnter: () => {
+              gsap.to(node, { attr: { r: 6 }, fill: "#111827", duration: 0.3 });
+              gsap.to(card, { opacity: 1, scale: 1.05, duration: 0.4, ease: "power2.out" });
+              gsap.to(glow, { opacity: 1, duration: 0.4 });
+            },
+            onLeaveBack: () => {
+              gsap.to(node, { attr: { r: 3 }, fill: "#D1D5DB", duration: 0.3 });
+              gsap.to(card, { opacity: 0.5, scale: 1, duration: 0.4 });
+              gsap.to(glow, { opacity: 0, duration: 0.4 });
+            }
+          });
+        });
       });
+      
     }, sectionRef);
 
     return () => ctx.revert();
@@ -222,12 +289,12 @@ export default function Services() {
   return (
     <section
       ref={sectionRef}
-      className="bg-[#F7FACF] h-screen w-full flex items-center overflow-hidden relative pt-28"
+      className="bg-[#F7FACF] w-full relative pt-28 pb-16 lg:pb-0 lg:h-screen lg:overflow-hidden lg:flex lg:items-center"
     >
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_70%_50%,rgba(0,0,0,0.02)_0%,transparent_60%)]" />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-        {/* LEFT SIDE: Pinned Content */}
+        {/* LEFT SIDE: Content */}
         <div className="lg:col-span-4 flex flex-col justify-start">
           <h2 className="text-4xl lg:text-5xl font-semibold text-gray-900 tracking-tight leading-[1.1]">
             What we do
@@ -246,33 +313,56 @@ export default function Services() {
         </div>
 
         {/* RIGHT SIDE: Layout Container */}
-        <div className="lg:col-span-8 relative">
-          {/* MOBILE VIEW (unchanged simplified list — see note below) */}
-          <div className="block lg:hidden flex flex-col space-y-3 max-h-[70vh] overflow-y-auto pr-2">
-            {services.map((service, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 bg-white/90 p-4 rounded-xl border border-gray-200 shadow-sm"
+        <div className="lg:col-span-8 relative mt-12 lg:mt-0">
+          
+          {/* MOBILE VIEW: Natural Scroll, Glowing Winding Path (C Path) */}
+          <div ref={mobileContainerRef} className="block lg:hidden relative w-full max-w-sm mx-auto py-4">
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <svg
+                className="w-full h-full overflow-visible"
+                viewBox={`0 0 ${MOB_W} ${MOB_H}`}
+                fill="none"
+                preserveAspectRatio="xMidYMid meet"
               >
-                <div className="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center shrink-0 mt-0.5 text-xs font-mono">
-                  {index + 1}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-5 h-5 relative flex items-center justify-center">
-                      <img src={service.image} alt={service.title} className="object-contain max-h-5 w-auto" />
+                <path d={mobilePathD} stroke="#dcdfe3" strokeWidth="1.5" strokeLinecap="round" />
+                <path ref={mobilePathRef} d={mobilePathD} stroke="#111827" strokeWidth="1.5" strokeLinecap="round" />
+                {mobileNodePositions.map((pos, i) => (
+                  <circle
+                    key={i}
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={3}
+                    fill="#D1D5DB"
+                  />
+                ))}
+              </svg>
+            </div>
+
+            <div className="relative w-full flex flex-col" style={{ gap: '40px' }}>
+              {services.map((service, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                  <div key={index} className={`mobile-step relative flex items-center w-full min-h-[100px] ${isEven ? 'flex-row-reverse' : ''}`}>
+                    <div className="w-[45%]"></div>
+                    <div className="w-[45%] relative">
+                      <div className="mobile-glow absolute -inset-2 rounded-2xl bg-amber-100/60 blur-lg opacity-0 pointer-events-none" />
+                      <div className="mobile-card relative z-10 p-4 bg-white/95 border border-gray-200 rounded-xl shadow-sm opacity-50">
+                        <div className={`flex flex-col gap-1.5 mb-2 ${isEven ? 'items-start' : 'items-end'}`}>
+                          <img src={service.image} alt={service.title} className="object-contain max-h-6 w-auto" />
+                          <h3 className={`text-[13px] font-semibold text-gray-900 leading-snug ${isEven ? 'text-left' : 'text-right'}`}>{service.title}</h3>
+                        </div>
+                        <p className={`text-[11px] text-gray-500 leading-relaxed ${isEven ? 'text-left' : 'text-right'}`}>{service.subtitle}</p>
+                      </div>
                     </div>
-                    <h3 className="text-sm font-semibold text-gray-900 leading-snug">{service.title}</h3>
                   </div>
-                  <p className="text-xs text-gray-600 pl-7">{service.subtitle}</p>
-                </div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
 
-          {/* DESKTOP VIEW */}
+          {/* DESKTOP VIEW: Pinned Winding SVG Path */}
           <div className="hidden lg:block relative h-[560px] w-full max-w-xl mx-auto items-center justify-center">
-            {/* Winding road, generated from the exact node positions below */}
+            {/* Winding road */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <svg
                 className="w-full h-full overflow-visible"
@@ -296,18 +386,15 @@ export default function Services() {
               </svg>
             </div>
 
-            {/* Steps: each renders a compact pill by default, and a full hero card only while active */}
+            {/* Steps */}
             <div className="w-full h-full relative">
               {services.map((service, index) => {
                 const isLeft = index % 2 === 0;
                 const pos = nodePositions[index];
                 const isFirst = index === 0;
                 const isLast = index === NODE_COUNT - 1;
-                // Centering every card on its node is what caused the first card to
-                // push up into the nav and the last card to push down past the
-                // container edge. Anchoring the two extremes so they only grow
-                // into open space fixes both, for any card height.
                 const anchorClass = isFirst ? "translate-y-0" : isLast ? "-translate-y-full" : "-translate-y-1/2";
+                
                 return (
                   <div
                     key={index}
@@ -318,10 +405,8 @@ export default function Services() {
                     <div
                       className={`relative w-80 ${anchorClass} ${isLeft ? "right-[54%] ml-auto" : "left-[54%]"}`}
                     >
-                      {/* glow behind the active card */}
                       <div className="step-glow absolute -inset-3 rounded-2xl bg-amber-100/50 blur-xl opacity-0 pointer-events-none" />
 
-                      {/* compact milestone pill — default state for completed & future steps */}
                       <div className="step-pill flex items-center gap-2.5 bg-white/70 backdrop-blur-sm px-3.5 py-2.5 rounded-[1.25rem] border border-gray-200/50 shadow-sm w-72">
                         <span className="step-pill-mark w-6 h-6 rounded-full bg-gray-200 text-gray-400 text-xs font-mono flex items-center justify-center shrink-0">
                           {`0${index + 1}`}
@@ -333,7 +418,6 @@ export default function Services() {
                         </span>
                       </div>
 
-                      {/* full hero card — only shown while this step is active */}
                       <div
                         className="step-card bg-white/95 backdrop-blur-sm p-5 rounded-2xl border border-gray-900/10 shadow-xl w-80"
                         style={{ display: "none" }}
@@ -351,7 +435,6 @@ export default function Services() {
                 );
               })}
 
-              {/* End state — a floating card, not pinned to an edge, so it never collides with the last pill */}
               <div
                 ref={completionRef}
                 className="absolute inset-0 flex items-center justify-center opacity-0 translate-y-2 pointer-events-none z-30"
