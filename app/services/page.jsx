@@ -57,28 +57,94 @@ const SECTIONS = [
   {
     id: "section-03",
     number: "03",
-    title: "CAQH ProView Maintenance",
+    title: "Payer Enrollment (Medicare, Medicaid & Commercial)",
     description:
-      "Keep your CAQH profile accurate and attested on time. We handle initial data entry, quarterly re-attestations, and document uploads to prevent application stalls.",
+      "Join the networks that matter most. We handle credentialing and enrollment with Medicare, Medicaid, and commercial insurance payers to ensure your participation and timely reimbursement.",
     includes: [
-      "Initial CAQH profile setup",
-      "Quarterly re-attestation management",
-      "Document uploads and error clearing",
+      "Application submission and tracking",
+      "Payer follow-ups and communication",
+      "Revalidations and re-enrollments",
     ],
-    illustrationType: "caqh",
+    illustrationType: "credentialing",
   },
   {
     id: "section-04",
     number: "04",
-    title: "Commercial & Medicaid Credentialing",
+    title: "CAQH Management",
     description:
-      "Expand your network participation smoothly. We submit and track applications with major commercial payers and state Medicaid programs from submission to approval.",
+      "Your CAQH profile — always current and attested. We create and maintain your CAQH account, ensuring that all information and attachments are accurate for smooth payer credentialing.",
     includes: [
-      "Payer application submission",
-      "Application status tracking and follow-up",
-      "Effective date and roster confirmation",
+      "CAQH ID creation and setup",
+      "Profile updates and uploads",
+      "Regular re-attestation management",
     ],
-    illustrationType: "credentialing",
+    illustrationType: "caqh",
+  },
+  {
+    id: "section-05",
+    number: "05",
+    title: "Demographic & Practice Updates",
+    description:
+      "Keep your details consistent across all payers. We handle updates for address changes, group affiliations, and practice details to ensure all payers have accurate records.",
+    includes: [
+      "Address, contact, and practice updates",
+      "Group/facility affiliation updates",
+      "Payer portal corrections",
+    ],
+    illustrationType: "demographic",
+  },
+  {
+    id: "section-06",
+    number: "06",
+    title: "License & Certification Tracking",
+    description:
+      "Stay compliant — no missed renewals. We monitor provider licenses and certifications, sending timely reminders before expiration.",
+    includes: [
+      "Tracking of all licenses and certifications",
+      "Expiration alerts and renewal support",
+      "Document updates post-renewal",
+    ],
+    illustrationType: "license",
+  },
+  {
+    id: "section-07",
+    number: "07",
+    title: "ERA / EFT Setup",
+    description:
+      "Simplify how you receive payments. We assist in enrolling for ERA/EFT with insurance payers so that payments and remittance reports are received electronically.",
+    includes: [
+      "Form preparation and submission",
+      "Banking verification coordination",
+      "Setup confirmation and verification",
+    ],
+    illustrationType: "eraEft",
+  },
+  {
+    id: "section-08",
+    number: "08",
+    title: "Provider Offboarding",
+    description:
+      "Close your credentialing cycle properly and securely. We handle credentialing terminations, remove practice details from portals, and ensure data is safely handed over and deleted from our systems.",
+    includes: [
+      "Payer and portal terminations",
+      "CAQH and directory updates",
+      "Secure data transfer and removal",
+    ],
+    illustrationType: "offboarding",
+  },
+  {
+    id: "section-09",
+    number: "09",
+    title: "Ongoing Maintenance & Support",
+    description:
+      "Credentialing is continuous — and we're here for the long run. Our maintenance plans ensure providers stay compliant year-round through regular updates, renewals, and audits.",
+    includes: [
+      "Quarterly CAQH updates",
+      "Annual recredentialing",
+      "Renewal tracking and reminders",
+      "Credentialing profile audits",
+    ],
+    illustrationType: "maintenance",
   },
 ];
 
@@ -151,11 +217,7 @@ export default function HealthcareStorytellingEditorial() {
             scrub: 1.2,
             anticipatePin: 1,
             onUpdate: (self) => {
-              if (self.progress > 0.35) {
-                gsap.to(chapter, { backgroundColor: CREAM, duration: 0.3 });
-              } else {
-                gsap.to(chapter, { backgroundColor: WHITE, duration: 0.3 });
-              }
+              gsap.to(chapter, { backgroundColor: WHITE, duration: 0.3 });
             },
           },
         });
@@ -222,14 +284,18 @@ export default function HealthcareStorytellingEditorial() {
         return (
           <section
             key={section.id}
-            className="story-chapter relative z-10 min-h-screen flex items-center justify-center px-6 md:px-16 lg:px-24 transition-colors duration-500"
+            className="story-chapter relative z-10 min-h-screen min-h-[100dvh] flex items-center justify-center px-6 md:px-16 lg:px-24 transition-colors duration-500"
             style={{ backgroundColor: WHITE }}
           >
             {/* Centered Intro View (Shown before scroll) — centered within
                 the visible viewport area BELOW the real, measured navbar */}
             <div
               className="title-intro-screen absolute left-0 right-0 bottom-0 flex flex-col items-center justify-center text-center z-20 pointer-events-none px-6"
-              style={{ top: navbarHeight }}
+              style={{
+                top: navbarHeight,
+                bottom: 0,
+                minHeight: `calc(100dvh - ${navbarHeight}px)`,
+              }}
             >
               <div className="flex items-center justify-center gap-4 mb-6">
                 <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to left, ${GOLD}88, transparent)` }} />
@@ -241,7 +307,7 @@ export default function HealthcareStorytellingEditorial() {
                 </span>
                 <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to right, ${GOLD}88, transparent)` }} />
               </div>
-              <h2 className="text-4xl sm:text-6xl md:text-7xl font-light tracking-tight max-w-4xl" style={{ color: NAVY }}>
+              <h2 className="text-3xl sm:text-6xl md:text-7xl font-light tracking-tight max-w-4xl" style={{ color: NAVY }}>
                 {section.title}
               </h2>
               <p className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mt-6 opacity-60" style={{ color: NAVY_SOFT }}>
@@ -292,7 +358,7 @@ export default function HealthcareStorytellingEditorial() {
                         style={{ backgroundColor: WHITE, borderColor: `${NAVY}10` }}
                       >
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: GOLD }} />
-                        <span className="text-sm font-medium" style={{ color: NAVY }}>{item}</span>
+                        <span className="text-base font-medium" style={{ color: NAVY }}>{item}</span>
                       </motion.li>
                     ))}
                   </ul>
@@ -341,6 +407,11 @@ function IllustrationCard({ type }) {
       {type === "npi" && <NpiVisual />}
       {type === "caqh" && <CaqhVisual />}
       {type === "credentialing" && <CredentialingVisual />}
+      {type === "demographic" && <DemographicVisual />}
+      {type === "license" && <LicenseVisual />}
+      {type === "eraEft" && <EraEftVisual />}
+      {type === "offboarding" && <OffboardingVisual />}
+      {type === "maintenance" && <MaintenanceVisual />}
     </div>
   );
 }
@@ -548,6 +619,333 @@ function CredentialingVisual() {
           style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
         >
           🤝
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function DemographicVisual() {
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <motion.div
+        animate={{ y: [-6, 6, -6], rotate: [0, 1, 0] }}
+        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-20 w-72 p-6 rounded-2xl border backdrop-blur-2xl shadow-xl"
+        style={{ backgroundColor: NAVY, borderColor: `${GOLD}40`, color: CREAM }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-mono tracking-wider" style={{ color: GOLD_SOFT }}>
+            PRACTICE RECORDS
+          </span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            Synced
+          </span>
+        </div>
+        <div className="space-y-3">
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Practice Address</span>
+            <span className="text-xs font-mono text-emerald-300">Updated</span>
+          </div>
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Group Affiliation</span>
+            <span className="text-xs font-mono text-emerald-300">Confirmed</span>
+          </div>
+          <div className="flex justify-between text-[11px] font-mono opacity-80 pt-1">
+            <span>Payer Portals</span>
+            <span style={{ color: GOLD_SOFT }}>3/3 Synced</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 27, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div
+          className="absolute top-8 left-10 w-12 h-12 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          📍
+        </div>
+        <div
+          className="absolute bottom-8 right-10 w-14 h-14 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          🏢
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function LicenseVisual() {
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <motion.div
+        animate={{ y: [-6, 6, -6], rotate: [0, -1, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-20 w-72 p-6 rounded-2xl border backdrop-blur-2xl shadow-xl"
+        style={{ backgroundColor: NAVY, borderColor: `${GOLD}40`, color: CREAM }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-mono tracking-wider" style={{ color: GOLD_SOFT }}>
+            LICENSE MONITOR
+          </span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            2 Expiring
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">State License (RN)</span>
+            <span className="text-xs font-mono text-amber-300">45 days left</span>
+          </div>
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Board Certification</span>
+            <span className="text-xs font-mono text-emerald-300">Active</span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: "72%" }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="h-full"
+              style={{ backgroundColor: GOLD }}
+            />
+          </div>
+          <div className="flex justify-between text-[11px] font-mono opacity-80">
+            <span>Compliance Score</span>
+            <span style={{ color: GOLD_SOFT }}>72%</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div
+          className="absolute top-10 right-10 w-12 h-12 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          🎓
+        </div>
+        <div
+          className="absolute bottom-10 left-10 w-14 h-14 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          ⏰
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function EraEftVisual() {
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <motion.div
+        animate={{ y: [-6, 6, -6], rotate: [0, 1, 0] }}
+        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-20 w-72 p-6 rounded-2xl border backdrop-blur-2xl shadow-xl"
+        style={{ backgroundColor: NAVY, borderColor: `${GOLD}40`, color: CREAM }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-mono tracking-wider" style={{ color: GOLD_SOFT }}>
+            ERA / EFT STATUS
+          </span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            Enrolled
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Electronic Remittance</span>
+            <span className="text-xs font-mono text-emerald-300">Active</span>
+          </div>
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Bank Verification</span>
+            <span className="text-xs font-mono text-emerald-300">Confirmed</span>
+          </div>
+          <div className="flex justify-between text-[11px] font-mono opacity-80 pt-1">
+            <span>Payers Connected</span>
+            <span style={{ color: GOLD_SOFT }}>12/12</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 29, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div
+          className="absolute top-8 left-10 w-12 h-12 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          💳
+        </div>
+        <div
+          className="absolute bottom-8 right-10 w-14 h-14 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          🏦
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function OffboardingVisual() {
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <motion.div
+        animate={{ y: [6, -6, 6], rotate: [0, -1, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-20 w-72 p-6 rounded-2xl border backdrop-blur-2xl shadow-xl"
+        style={{ backgroundColor: NAVY, borderColor: `${GOLD}40`, color: CREAM }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-mono tracking-wider" style={{ color: GOLD_SOFT }}>
+            OFFBOARDING STATUS
+          </span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-500/20 text-slate-300 border border-slate-500/30">
+            Closed
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Payer Terminations</span>
+            <span className="text-xs font-mono text-emerald-300">Complete</span>
+          </div>
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Data Removal</span>
+            <span className="text-xs font-mono text-emerald-300">Verified</span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: "100%" }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="h-full"
+              style={{ backgroundColor: GOLD }}
+            />
+          </div>
+          <div className="flex justify-between text-[11px] font-mono opacity-80">
+            <span>Cycle Closed</span>
+            <span style={{ color: GOLD_SOFT }}>100%</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ duration: 31, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div
+          className="absolute top-10 right-10 w-12 h-12 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          🔒
+        </div>
+        <div
+          className="absolute bottom-10 left-10 w-14 h-14 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          📤
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function MaintenanceVisual() {
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <motion.div
+        animate={{ y: [-6, 6, -6], rotate: [0, 1, 0] }}
+        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-20 w-72 p-6 rounded-2xl border backdrop-blur-2xl shadow-xl"
+        style={{ backgroundColor: NAVY, borderColor: `${GOLD}40`, color: CREAM }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs font-mono tracking-wider" style={{ color: GOLD_SOFT }}>
+            MAINTENANCE PLAN
+          </span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/20 text-blue-300 border border-blue-500/30">
+            Year-Round
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Next CAQH Update</span>
+            <span className="text-xs font-mono text-amber-300">Q4 2026</span>
+          </div>
+          <div
+            className="p-3 rounded-xl border flex items-center justify-between"
+            style={{ backgroundColor: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.05)" }}
+          >
+            <span className="text-xs opacity-70">Recredentialing</span>
+            <span className="text-xs font-mono text-emerald-300">On Track</span>
+          </div>
+          <div className="flex justify-between text-[11px] font-mono opacity-80 pt-1">
+            <span>Audit Score</span>
+            <span style={{ color: GOLD_SOFT }}>98%</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div
+          className="absolute top-8 left-10 w-12 h-12 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          🔧
+        </div>
+        <div
+          className="absolute bottom-8 right-10 w-14 h-14 rounded-2xl border backdrop-blur-md flex items-center justify-center text-xs shadow-md"
+          style={{ backgroundColor: WHITE, borderColor: `${GOLD}40` }}
+        >
+          📆
         </div>
       </motion.div>
     </div>
