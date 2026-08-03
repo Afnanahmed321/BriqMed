@@ -53,7 +53,7 @@ const services = [
 
 const NODE_COUNT = services.length;
 
-// ─── DESKTOP constants (unchanged) ───────────────────────────────────────────
+// ─── DESKTOP constants ────────────────────────────────────────────────────────
 const VIEW_W = 600;
 const VIEW_H = 900;
 const PAD_TOP = 90;
@@ -61,7 +61,6 @@ const PAD_BOTTOM = 90;
 const STEP_PHASE_END = 0.98;
 const COMPLETE_THRESHOLD = 0.995;
 
-// ─── Desktop helpers (unchanged) ─────────────────────────────────────────────
 function getNodePositions() {
   const usableH = VIEW_H - PAD_TOP - PAD_BOTTOM;
   const positions = [];
@@ -84,19 +83,22 @@ function buildWindingPath(positions) {
   return d;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function Services() {
   const sectionRef = useRef(null);
 
-  // Desktop refs (unchanged)
+  // Desktop refs
   const pathRef = useRef(null);
-  const stepRefs = useRef([]);
+  const stepContainerRefs = useRef([]);
+  const pillRefs = useRef([]);
+  const pillMarkRefs = useRef([]);
+  const pillTitleRefs = useRef([]);
+  const cardRefs = useRef([]);
+  const glowRefs = useRef([]);
   const nodeRefs = useRef([]);
   const completionRef = useRef(null);
   const stepStatesRef = useRef(services.map(() => "future"));
 
-  // Mobile refs (straight-line timeline, no SVG)
+  // Mobile refs
   const mobContainerRef = useRef(null);
   const mobLineFillRef = useRef(null);
   const mobCardRefs = useRef([]);
@@ -106,30 +108,33 @@ export default function Services() {
   const pathD = useMemo(() => buildWindingPath(nodePositions), [nodePositions]);
 
   useEffect(() => {
-    let ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
+    let matchMediaInstance;
+    const scrollTriggers = [];
+
+    const ctx = gsap.context(() => {
+      matchMediaInstance = gsap.matchMedia();
 
       // ════════════════════════════════════════════════════════════════════
-      // DESKTOP — pinned winding path (completely unchanged)
+      // DESKTOP — pinned winding path
       // ════════════════════════════════════════════════════════════════════
-      mm.add("(min-width: 1024px)", () => {
+      matchMediaInstance.add("(min-width: 1024px)", () => {
         const applyStepState = (index, state, animate = true) => {
-          const step = stepRefs.current[index];
+          const stepContainer = stepContainerRefs.current[index];
+          const pill = pillRefs.current[index];
+          const pillMark = pillMarkRefs.current[index];
+          const pillTitle = pillTitleRefs.current[index];
+          const card = cardRefs.current[index];
+          const glow = glowRefs.current[index];
           const node = nodeRefs.current[index];
-          if (!step) return;
 
-          const pill = step.querySelector(".step-pill");
-          const pillMark = step.querySelector(".step-pill-mark");
-          const pillTitle = step.querySelector(".step-pill-title");
-          const card = step.querySelector(".step-card");
-          const glow = step.querySelector(".step-glow");
+          if (!stepContainer || !pill || !card || !glow) return;
 
           const set = animate ? gsap.to : gsap.set;
 
           if (state === "active") {
-            gsap.set(pill, { display: "none" });
-            gsap.set(card, { display: "block" });
-            gsap.set(step, { zIndex: 20 });
+            gsap.set(pill, { opacity: 0, pointerEvents: "none" });
+            gsap.set(card, { opacity: 1, pointerEvents: "auto" });
+            gsap.set(stepContainer, { zIndex: 20 });
             if (animate) {
               gsap.fromTo(
                 card,
@@ -142,9 +147,9 @@ export default function Services() {
               gsap.set(glow, { opacity: 1 });
             }
           } else {
-            gsap.set(card, { display: "none" });
-            gsap.set(pill, { display: "flex" });
-            gsap.set(step, { zIndex: 1 });
+            gsap.set(card, { opacity: 0, pointerEvents: "none" });
+            gsap.set(pill, { opacity: 1, pointerEvents: "auto" });
+            gsap.set(stepContainer, { zIndex: 1 });
             set(glow, { opacity: 0, duration: 0.3 });
 
             if (state === "completed") {
@@ -227,7 +232,7 @@ export default function Services() {
           applyStepState(i, i === 0 ? "active" : "future", false)
         );
 
-        ScrollTrigger.create({
+        const desktopST = ScrollTrigger.create({
           trigger: sectionRef.current,
           start: "top top",
           end: `+=${NODE_COUNT * 650}px`,
@@ -237,21 +242,19 @@ export default function Services() {
           invalidateOnRefresh: true,
           onUpdate: (self) => updateJourney(self.progress, true),
         });
+
+        scrollTriggers.push(desktopST);
       });
 
       // ════════════════════════════════════════════════════════════════════
       // MOBILE — straight-line storytelling timeline
-      // Single ScrollTrigger drives BOTH the line fill and card activation.
-      // A card is only "unlocked" the instant self.progress crosses the
-      // fractional position of its own node — no independent triggers,
-      // no early activation, no drift.
       // ════════════════════════════════════════════════════════════════════
-      mm.add("(max-width: 1023px)", () => {
+      matchMediaInstance.add("(max-width: 1023px)", () => {
         const container = mobContainerRef.current;
         const lineFill = mobLineFillRef.current;
         if (!container || !lineFill) return;
 
-        // ── Initial states ────────────────────────────────────────────────
+        // Initial states
         gsap.set(lineFill, { scaleY: 0, transformOrigin: "top center" });
 
         mobCardRefs.current.forEach((card) => {
@@ -270,10 +273,6 @@ export default function Services() {
           gsap.set(node, { backgroundColor: "#9CA3AF", scale: 1 });
         });
 
-        // ── Single source of truth: each node's fractional position
-        // within the container, measured top -> bottom. Recomputed on
-        // refresh so resizes / dynamic content never desync activation
-        // from the visible line.
         let nodeThresholds = [];
 
         const computeThresholds = () => {
@@ -289,8 +288,6 @@ export default function Services() {
 
         computeThresholds();
 
-        // Tracks current on/off state per card so we only tween on an
-        // actual transition, never re-fire every scrub frame.
         const cardActive = services.map(() => false);
 
         const setCardState = (index, isActive, animate = true) => {
@@ -346,10 +343,7 @@ export default function Services() {
           cardActive[index] = isActive;
         };
 
-        // ── ONE ScrollTrigger. Line fill and card activation both read
-        // off the same self.progress value every frame — this is the
-        // single source of truth required.
-        const st = ScrollTrigger.create({
+        const mobileST = ScrollTrigger.create({
           trigger: container,
           start: "top 75%",
           end: "bottom 30%",
@@ -368,25 +362,32 @@ export default function Services() {
           },
         });
 
-        // ScrollTrigger already refreshes on window resize internally,
-        // but our thresholds are measured in getBoundingClientRect (not
-        // ScrollTrigger's own start/end), so force a recompute + refresh
-        // to keep them in lockstep with layout changes.
+        scrollTriggers.push(mobileST);
+
         const onResize = () => {
           computeThresholds();
-          st.refresh();
+          mobileST.refresh();
         };
         window.addEventListener("resize", onResize);
 
-        // Returned from mm.add's handler: gsap.matchMedia calls this as
-        // the cleanup for this breakpoint's context.
         return () => {
           window.removeEventListener("resize", onResize);
         };
       });
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      // 1. Explicitly kill all stored ScrollTriggers
+      scrollTriggers.forEach((st) => st && st.kill());
+
+      // 2. Revert matchMedia instance
+      if (matchMediaInstance) {
+        matchMediaInstance.revert();
+      }
+
+      // 3. Revert GSAP context (cleans up timelines, tweens, and DOM modifications)
+      ctx.revert();
+    };
   }, []);
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -429,14 +430,14 @@ export default function Services() {
             className="block lg:hidden relative mx-auto w-full max-w-sm"
           >
             <div className="relative flex flex-col">
-              {/* Base track — light gray, full height */}
+              {/* Base track */}
               <div
                 className="absolute top-0 bottom-0 w-[2px] bg-[#E5E7EB] rounded-full"
                 style={{ left: "16px" }}
                 aria-hidden="true"
               />
 
-              {/* Progress fill — scrubs from light gray to primary dark */}
+              {/* Progress fill */}
               <div
                 ref={mobLineFillRef}
                 className="absolute top-0 w-[2px] h-full bg-[#111827] rounded-full"
@@ -453,7 +454,7 @@ export default function Services() {
                       isLast ? "" : "pb-8"
                     }`}
                   >
-                    {/* Node column — fixed width, keeps every node centered on the rail */}
+                    {/* Node column */}
                     <div className="relative z-10 flex-shrink-0 w-8 flex items-center justify-center">
                       <div
                         ref={(el) => (mobNodeRefs.current[index] = el)}
@@ -461,7 +462,7 @@ export default function Services() {
                       />
                     </div>
 
-                    {/* Card — never touches the rail, sits fully to its right */}
+                    {/* Card */}
                     <div
                       ref={(el) => (mobCardRefs.current[index] = el)}
                       className="relative z-10 flex-1 min-w-0 bg-white/90 backdrop-blur-md border rounded-[22px] px-5 py-5 will-change-transform"
@@ -483,7 +484,7 @@ export default function Services() {
           </div>
 
           {/* ══════════════════════════════════════════════════════════════
-              DESKTOP VIEW — pinned winding SVG path (unchanged)
+              DESKTOP VIEW — pinned winding SVG path
               ══════════════════════════════════════════════════════════════ */}
           <div className="hidden lg:block relative h-[560px] w-full max-w-xl mx-auto items-center justify-center">
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -495,7 +496,7 @@ export default function Services() {
               >
                 <path
                   d={pathD}
-                  stroke="#dcdfe3"
+                  stroke="#E5E7EB"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                 />
@@ -535,7 +536,7 @@ export default function Services() {
                 return (
                   <div
                     key={index}
-                    ref={(el) => (stepRefs.current[index] = el)}
+                    ref={(el) => (stepContainerRefs.current[index] = el)}
                     className="absolute w-full flex items-center"
                     style={{ top: `${(pos.y / VIEW_H) * 100}%` }}
                   >
@@ -544,23 +545,37 @@ export default function Services() {
                         isLeft ? "right-[54%] ml-auto" : "left-[54%]"
                       }`}
                     >
-                      <div className="step-glow absolute -inset-3 rounded-2xl bg-amber-100/50 blur-xl opacity-0 pointer-events-none" />
+                      {/* Glow */}
+                      <div
+                        ref={(el) => (glowRefs.current[index] = el)}
+                        className="step-glow absolute -inset-3 rounded-2xl bg-amber-100/50 blur-xl opacity-0 pointer-events-none transition-opacity duration-300"
+                      />
 
-                      <div className="step-pill flex items-center gap-2.5 bg-white/70 backdrop-blur-sm px-3.5 py-2.5 rounded-[1.25rem] border border-gray-200/50 shadow-sm w-72">
+                      {/* Pill */}
+                      <div
+                        ref={(el) => (pillRefs.current[index] = el)}
+                        className="step-pill flex items-center gap-2.5 bg-white/70 backdrop-blur-sm px-3.5 py-2.5 rounded-[1.25rem] border border-gray-200/50 shadow-sm w-72 transition-opacity duration-300"
+                      >
                         <span
+                          ref={(el) => (pillMarkRefs.current[index] = el)}
                           className="step-pill-mark w-6 h-6 rounded-full bg-gray-200 text-gray-400 text-xs font-mono flex items-center justify-center shrink-0"
-                          dangerouslySetInnerHTML={{
-                            __html: `0${index + 1}`,
-                          }}
-                        />
-                        <span className="step-pill-title text-sm font-medium text-gray-400 leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden">
+                        >
+                          {`0${index + 1}`}
+                        </span>
+                        <span
+                          ref={(el) => (pillTitleRefs.current[index] = el)}
+                          className="step-pill-title text-sm font-medium text-gray-400 leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden"
+                        >
                           {service.title}
                         </span>
                       </div>
 
+                      {/* Card */}
                       <div
-                        className="step-card bg-white/95 backdrop-blur-sm p-5 rounded-2xl border border-gray-900/10 shadow-xl w-80"
-                        style={{ display: "none" }}
+                        ref={(el) => (cardRefs.current[index] = el)}
+                        className={`step-card absolute top-0 bg-white/95 backdrop-blur-sm p-5 rounded-2xl border border-gray-900/10 shadow-xl w-80 opacity-0 pointer-events-none transition-opacity duration-300 z-20 ${
+                          isLeft ? "right-0" : "left-0"
+                        }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-mono text-gray-400">{`0${index + 1}`}</span>
