@@ -24,8 +24,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={gentium.className}>
-        <Preloader />
-        <CustomCursor />
+        {/* <Preloader />
+        <CustomCursor /> */}
         <Navbar />
 
         <main className="pt-20">{children}</main>
