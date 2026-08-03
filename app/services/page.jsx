@@ -199,6 +199,10 @@ export default function HealthcareStorytellingEditorial() {
   }, []);
 
   useEffect(() => {
+    // Only register ScrollTrigger animations on desktop screen widths
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    if (!mediaQuery.matches) return;
+
     const ctx = gsap.context(() => {
       const chapters = gsap.utils.toArray(".story-chapter");
 
@@ -279,98 +283,111 @@ export default function HealthcareStorytellingEditorial() {
       </div>
 
       {/* --- STORY CHAPTERS --- */}
-      {SECTIONS.map((section, index) => {
-        const isEven = index % 2 === 0;
-        return (
-          <section
-            key={section.id}
-            className="story-chapter relative z-10 min-h-screen min-h-[100dvh] flex items-center justify-center px-6 md:px-16 lg:px-24 transition-colors duration-500"
-            style={{ backgroundColor: WHITE }}
-          >
-            {/* Centered Intro View (Shown before scroll) — centered within
-                the visible viewport area BELOW the real, measured navbar */}
-            <div
-              className="title-intro-screen absolute left-0 right-0 bottom-0 flex flex-col items-center justify-center text-center z-20 pointer-events-none px-6"
-              style={{
-                top: navbarHeight,
-                bottom: 0,
-                minHeight: `calc(100dvh - ${navbarHeight}px)`,
-              }}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 lg:py-0 lg:px-0">
+        {SECTIONS.map((section, index) => {
+          const isEven = index % 2 === 0;
+          return (
+            <section
+              key={section.id}
+              className="story-chapter relative w-full lg:min-h-screen lg:min-h-[100dvh] flex items-center justify-center py-12 lg:py-0 transition-colors duration-500 border-b border-gray-100 last:border-b-0 lg:border-b-0"
+              style={{ backgroundColor: WHITE }}
             >
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to left, ${GOLD}88, transparent)` }} />
-                <span
-                  className="text-xs sm:text-sm font-mono tracking-widest px-4 py-1.5 rounded-md border shadow-sm"
-                  style={{ color: GOLD, backgroundColor: `${NAVY}05`, borderColor: `${GOLD}40` }}
-                >
-                  CHAPTER {section.number}
-                </span>
-                <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to right, ${GOLD}88, transparent)` }} />
-              </div>
-              <h2 className="text-3xl sm:text-6xl md:text-7xl font-light tracking-tight max-w-4xl" style={{ color: NAVY }}>
-                {section.title}
-              </h2>
-              <p className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mt-6 opacity-60" style={{ color: NAVY_SOFT }}>
-                Scroll down to view service content
-              </p>
-            </div>
-
-            {/* Full Service Grid View (Revealed upon scroll) */}
-            <div
-              className="chapter-content-grid w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center opacity-0 pointer-events-none"
-              style={{ marginTop: navbarHeight }}
-            >
-
+              {/* Centered Intro View - ONLY on Desktop */}
               <div
-                className={`illustration-box relative lg:col-span-6 flex items-center justify-center ${
-                  isEven ? "lg:order-1" : "lg:order-2"
-                }`}
+                className="title-intro-screen hidden lg:flex absolute inset-0 flex-col items-center justify-center text-center z-20 pointer-events-none px-6"
               >
-                <IllustrationCard type={section.illustrationType} />
-              </div>
-
-              <div
-                className={`content-box lg:col-span-6 flex flex-col justify-center space-y-8 ${
-                  isEven ? "lg:order-2" : "lg:order-1"
-                }`}
-              >
-                <h2 className="text-3xl sm:text-5xl md:text-6xl font-light tracking-tight" style={{ color: NAVY }}>
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to left, ${GOLD}88, transparent)` }} />
+                  <span
+                    className="text-xs sm:text-sm font-mono tracking-widest px-4 py-1.5 rounded-md border shadow-sm"
+                    style={{ color: GOLD, backgroundColor: `${NAVY}05`, borderColor: `${GOLD}40` }}
+                  >
+                    CHAPTER {section.number}
+                  </span>
+                  <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to right, ${GOLD}88, transparent)` }} />
+                </div>
+                <h2 className="text-3xl sm:text-6xl md:text-7xl font-light tracking-tight max-w-4xl" style={{ color: NAVY }}>
                   {section.title}
                 </h2>
-
-                <p className="text-lg md:text-xl font-light leading-relaxed max-w-xl text-gray-700">
-                  {section.description}
+                <p className="text-sm sm:text-base font-mono uppercase tracking-[0.25em] mt-6 opacity-60" style={{ color: NAVY_SOFT }}>
+                  Scroll down to view service content
                 </p>
-
-                <div className="space-y-4 pt-2">
-                  <h4 className="text-xs sm:text-sm md:text-base uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium block" style={{ color: GOLD }}>
-                    Includes
-                  </h4>
-                  <ul className="grid gap-3">
-                    {section.includes.map((item, idx) => (
-                      <motion.li
-                        key={idx}
-                        initial={{ opacity: 0, x: -10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: idx * 0.1, duration: 0.5 }}
-                        className="flex items-center gap-3 p-4 rounded-xl border backdrop-blur-sm transition-colors shadow-sm"
-                        style={{ backgroundColor: WHITE, borderColor: `${NAVY}10` }}
-                      >
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: GOLD }} />
-                        <span className="text-base font-medium" style={{ color: NAVY }}>{item}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
               </div>
 
-            </div>
-          </section>
-        );
-      })}
+              {/* Full Service Grid View - Directly visible on mobile, animated on Desktop */}
+              <div
+                className="chapter-content-grid w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-center lg:opacity-0 lg:pointer-events-none"
+                style={{ marginTop: 0 }}
+                ref={(el) => {
+                  if (el) {
+                    if (window.matchMedia("(min-width: 1024px)").matches) {
+                      el.style.marginTop = `${navbarHeight}px`;
+                    }
+                  }
+                }}
+              >
+                {/* Mobile Chapter Badge */}
+                <div className="lg:hidden flex items-center gap-3">
+                  <span
+                    className="text-[11px] font-mono tracking-wider px-3 py-1 rounded border"
+                    style={{ color: GOLD, backgroundColor: `${NAVY}05`, borderColor: `${GOLD}30` }}
+                  >
+                    CHAPTER {section.number}
+                  </span>
+                  <div className="h-px flex-grow" style={{ backgroundColor: `${NAVY}10` }} />
+                </div>
 
-      <div className="h-[20vh]" />
+                <div
+                  className={`illustration-box relative lg:col-span-6 flex items-center justify-center ${
+                    isEven ? "lg:order-1" : "lg:order-2"
+                  }`}
+                >
+                  <IllustrationCard type={section.illustrationType} />
+                </div>
+
+                <div
+                  className={`content-box lg:col-span-6 flex flex-col justify-center space-y-6 lg:space-y-8 ${
+                    isEven ? "lg:order-2" : "lg:order-1"
+                  }`}
+                >
+                  <h2 className="text-2xl sm:text-3xl lg:text-6xl font-light tracking-tight" style={{ color: NAVY }}>
+                    {section.title}
+                  </h2>
+
+                  <p className="text-base sm:text-lg lg:text-xl font-light leading-relaxed text-gray-700">
+                    {section.description}
+                  </p>
+
+                  <div className="space-y-3.5 pt-1">
+                    <h4 className="text-xs sm:text-sm uppercase tracking-[0.15em] font-medium block" style={{ color: GOLD }}>
+                      Includes
+                    </h4>
+                    <ul className="grid gap-2.5">
+                      {section.includes.map((item, idx) => (
+                        <motion.li
+                          key={idx}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: idx * 0.08, duration: 0.4 }}
+                          className="flex items-center gap-3 p-3.5 rounded-xl border backdrop-blur-sm shadow-sm"
+                          style={{ backgroundColor: WHITE, borderColor: `${NAVY}10` }}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: GOLD }} />
+                          <span className="text-sm sm:text-base font-medium" style={{ color: NAVY }}>{item}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      <div className="h-[10vh] lg:h-[20vh]" />
     </div>
   );
 }
