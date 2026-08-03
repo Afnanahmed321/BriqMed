@@ -46,13 +46,6 @@ const INFO_CARDS = [
     href: "mailto:info@briqmed.com",
   },
   {
-    icon: <HiOutlineLocationMarker className="text-2xl" />,
-    label: "Our Office",
-    value: "New York, NY",
-    sub: "United States",
-    href: null,
-  },
-  {
     icon: <HiOutlineClock className="text-2xl" />,
     label: "Business Hours",
     value: "Mon – Fri",

@@ -163,12 +163,6 @@ export default function HelpPage() {
       value: "+1 646 341 6783",
       href: "tel:+16463416783",
     },
-    {
-      icon: <HiOutlineLocationMarker className="text-xl" />,
-      label: "Office",
-      value: "New York, NY",
-      href: null,
-    },
   ];
 
   return (
