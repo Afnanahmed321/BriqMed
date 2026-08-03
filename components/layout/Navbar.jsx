@@ -60,7 +60,7 @@ export default function Navbar() {
             className="group relative flex items-center outline-none ring-offset-2 ring-blue-600 focus-visible:ring-2 rounded-lg"
           >
             <Image
-              src="/briqmed_logo.jpg"
+              src="/images/briqmed_logo.jpg"
               alt="BRIQMED Logo"
               width={280}
               height={80}

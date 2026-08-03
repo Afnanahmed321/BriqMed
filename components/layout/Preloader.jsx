@@ -53,7 +53,7 @@ export default function Preloader() {
               className="relative overflow-hidden"
             >
               <Image
-                src="/briqmed_logo.jpg"
+                src="/images/briqmed_logo.jpg"
                 alt="BriqMed"
                 width={180}
                 height={75}

@@ -23,7 +23,7 @@ export default function Footer() {
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white p-3 rounded-xl inline-block shadow-sm">
               <Image
-                src="/briqmed_logo.jpg"
+                src="/images/briqmed_logo.jpg"
                 alt="BriqMed"
                 width={150}
                 height={60}

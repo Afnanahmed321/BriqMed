@@ -116,7 +116,7 @@ export default function Hero() {
           >
             <div className="w-full max-w-2xl flex justify-center">
               <Image
-                src="/hero_image.png"
+                src="/images/hero_image.png"
                 alt="Healthcare Credentialing"
                 width={700}
                 height={550}
