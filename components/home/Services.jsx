@@ -119,7 +119,7 @@ export default function Services() {
 
             <h2
               id="services-heading"
-              className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 lg:text-5xl"
+              className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 lg:text-3xl"
             >
               Credentialing,
               <br />

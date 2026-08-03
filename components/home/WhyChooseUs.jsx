@@ -80,7 +80,7 @@ export default function WhyChooseUs() {
           <span className="text-[30px] font-bold tracking-[0.04em] uppercase text-[#0F1F3D] mb-3">
             Why BriqMed ?
           </span>
-          <h2 className="text-[25px] lg:text-[34px] font-semibold tracking-tight text-zinc-900 max-w-xl">
+          <h2 className="text-[25px] lg:text-3xl font-semibold tracking-tight text-zinc-900 max-w-xl">
             Credentialing, handled with precision
           </h2>
           <p className="mt-4 text-[16px] lg:text-[17.5px] leading-relaxed text-zinc-500 max-w-md">
