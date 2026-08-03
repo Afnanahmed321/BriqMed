@@ -167,9 +167,11 @@ export default function AboutEditorialExperience() {
           <span className={labelClass} style={{ color: GOLD }}>
             Our Goal is simple
           </span>
-          <h2 ref={goalWordsRef} className="text-2xl sm:text-3xl md:text-5xl font-light leading-[1.4] md:leading-[1.3]">
-            To make credentialing and enrollment hassle-free, accurate, and fully compliant.
-          </h2>
+          <h2
+            ref={goalWordsRef}
+            className="text-2xl sm:text-3xl md:text-5xl font-light leading-[1.4] md:leading-[1.3]"
+            dangerouslySetInnerHTML={{ __html: "To make credentialing and enrollment hassle-free, accurate, and fully compliant." }}
+          />
         </div>
       </section>
 
@@ -254,9 +256,11 @@ export default function AboutEditorialExperience() {
           <span className={labelClass} style={{ color: GOLD }}>
             Our Commitment
           </span>
-          <p ref={commitmentRef} className="text-xl sm:text-2xl md:text-4xl font-light leading-[1.5] md:leading-[1.4]">
-            We treat every provider as a priority. Whether you are starting a new practice, joining a group, or expanding into new insurance networks, BriqMed ensures your credentialing journey is smooth, efficient, and stress-free.
-          </p>
+          <p
+            ref={commitmentRef}
+            className="text-xl sm:text-2xl md:text-4xl font-light leading-[1.5] md:leading-[1.4]"
+            dangerouslySetInnerHTML={{ __html: "We treat every provider as a priority. Whether you are starting a new practice, joining a group, or expanding into new insurance networks, BriqMed ensures your credentialing journey is smooth, efficient, and stress-free." }}
+          />
         </div>
       </section>
     </div>

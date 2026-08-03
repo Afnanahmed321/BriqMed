@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -283,13 +284,13 @@ export default function HealthcareStorytellingEditorial() {
       </div>
 
       {/* --- STORY CHAPTERS --- */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 lg:py-0 lg:px-0">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-0 lg:py-0 lg:px-0">
         {SECTIONS.map((section, index) => {
           const isEven = index % 2 === 0;
           return (
             <section
               key={section.id}
-              className="story-chapter relative w-full lg:min-h-screen lg:min-h-[100dvh] flex items-center justify-center py-12 lg:py-0 transition-colors duration-500 border-b border-gray-100 last:border-b-0 lg:border-b-0"
+              className="story-chapter relative w-full lg:min-h-screen lg:min-h-[100dvh] flex items-center justify-center py-0 sm:py-1 lg:py-0 transition-colors duration-500 border-b border-gray-100 last:border-b-0 lg:border-b-0"
               style={{ backgroundColor: WHITE }}
             >
               {/* Centered Intro View - ONLY on Desktop */}
@@ -316,7 +317,7 @@ export default function HealthcareStorytellingEditorial() {
 
               {/* Full Service Grid View - Directly visible on mobile, animated on Desktop */}
               <div
-                className="chapter-content-grid w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-center lg:opacity-0 lg:pointer-events-none"
+                className="chapter-content-grid w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-20 items-center lg:opacity-0 lg:pointer-events-none"
                 style={{ marginTop: 0 }}
                 ref={(el) => {
                   if (el) {
@@ -346,7 +347,7 @@ export default function HealthcareStorytellingEditorial() {
                 </div>
 
                 <div
-                  className={`content-box lg:col-span-6 flex flex-col justify-center space-y-6 lg:space-y-8 ${
+                  className={`content-box lg:col-span-6 flex flex-col justify-center space-y-4 lg:space-y-8 ${
                     isEven ? "lg:order-2" : "lg:order-1"
                   }`}
                 >
@@ -358,11 +359,11 @@ export default function HealthcareStorytellingEditorial() {
                     {section.description}
                   </p>
 
-                  <div className="space-y-3.5 pt-1">
+                  <div className="space-y-2.5 sm:space-y-3.5 pt-1">
                     <h4 className="text-xs sm:text-sm uppercase tracking-[0.15em] font-medium block" style={{ color: GOLD }}>
                       Includes
                     </h4>
-                    <ul className="grid gap-2.5">
+                    <ul className="grid gap-2 sm:gap-2.5">
                       {section.includes.map((item, idx) => (
                         <motion.li
                           key={idx}
@@ -370,7 +371,7 @@ export default function HealthcareStorytellingEditorial() {
                           whileInView={{ opacity: 1, x: 0 }}
                           viewport={{ once: true }}
                           transition={{ delay: idx * 0.08, duration: 0.4 }}
-                          className="flex items-center gap-3 p-3.5 rounded-xl border backdrop-blur-sm shadow-sm"
+                          className="flex items-center gap-3 p-3 sm:p-3.5 rounded-xl border backdrop-blur-sm shadow-sm"
                           style={{ backgroundColor: WHITE, borderColor: `${NAVY}10` }}
                         >
                           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: GOLD }} />
@@ -387,7 +388,7 @@ export default function HealthcareStorytellingEditorial() {
         })}
       </div>
 
-      <div className="h-[10vh] lg:h-[20vh]" />
+      <div className="h-[4vh] lg:h-[20vh]" />
     </div>
   );
 }
@@ -410,25 +411,40 @@ function CursorGlow({ x, y }) {
   );
 }
 
+const IMAGE_MAP = {
+  onboarding: "/icons/service-1.png",
+  npi: "/icons/service-2.png",
+  caqh: "/icons/service-4.png",
+  credentialing: "/icons/service-3.png",
+  demographic: "/icons/service-5.png",
+  license: "/icons/service-6.png",
+  eraEft: "/icons/service-7.png",
+  offboarding: "/icons/service-8.png",
+  maintenance: "/icons/service-9.png",
+};
+
 function IllustrationCard({ type }) {
+  const imgSrc = IMAGE_MAP[type] || "/icons/service-1.png";
   return (
     <div
-      className="relative w-full aspect-[4/3] rounded-3xl border backdrop-blur-xl p-8 flex items-center justify-center overflow-hidden shadow-xl group"
-      style={{ backgroundColor: WHITE, borderColor: `${NAVY}15` }}
+      className="relative w-full aspect-[4/3] rounded-3xl border backdrop-blur-xl p-6 flex items-center justify-center overflow-hidden shadow-sm group bg-white"
+      style={{ borderColor: `${NAVY}15` }}
     >
       <div
-        className="absolute inset-0 opacity-40 group-hover:opacity-80 transition-opacity duration-700 pointer-events-none"
+        className="absolute inset-0 opacity-30 group-hover:opacity-60 transition-opacity duration-700 pointer-events-none"
         style={{ background: `linear-gradient(to top right, ${GOLD_SOFT}15, transparent, ${NAVY_SOFT}10)` }}
       />
-      {type === "onboarding" && <OnboardingVisual />}
-      {type === "npi" && <NpiVisual />}
-      {type === "caqh" && <CaqhVisual />}
-      {type === "credentialing" && <CredentialingVisual />}
-      {type === "demographic" && <DemographicVisual />}
-      {type === "license" && <LicenseVisual />}
-      {type === "eraEft" && <EraEftVisual />}
-      {type === "offboarding" && <OffboardingVisual />}
-      {type === "maintenance" && <MaintenanceVisual />}
+      <div className="relative w-full h-full flex items-center justify-center">
+        <Image
+          src={imgSrc}
+          alt={type}
+          fill
+          unoptimized
+          sizes="(max-width: 768px) 100vw, 50vw"
+          priority
+          className="object-contain transition-transform duration-700 group-hover:scale-105"
+        />
+      </div>
     </div>
   );
 }
