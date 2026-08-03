@@ -1,6 +1,6 @@
 import Hero from "@/components/home/Hero";
 // import Services from "@/components/home/Services";
-import WhyChooseUs from "@/components/home/WhyChooseUs";
+// import WhyChooseUs from "@/components/home/WhyChooseUs";
 import HomeCTA from "@/components/home/HomeCTA";
 
 export default function Home() {
@@ -8,7 +8,7 @@ export default function Home() {
     <>
       <Hero />
       {/* <Services /> */}
-      <WhyChooseUs />
+      {/* <WhyChooseUs /> */}
       <HomeCTA />
     </>
   );
