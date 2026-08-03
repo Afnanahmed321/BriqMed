@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
@@ -86,7 +87,8 @@ export default function Hero() {
             </motion.p>
 
             <motion.div variants={textVariants} className="mt-10 inline-block">
-              <motion.button
+              <Link href="/contact">
+                <motion.button
                 whileHover={
                   shouldReduceMotion
                     ? {}
@@ -106,6 +108,7 @@ export default function Hero() {
               >
                 Discover More
               </motion.button>
+              </Link>
             </motion.div>
           </div>
 

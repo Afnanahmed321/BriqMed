@@ -121,14 +121,14 @@ export default function Footer() {
                   <span className="font-medium">+1 646 341 6783</span>
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <div className="group inline-flex items-center gap-3 text-white">
                   <span className="p-2 rounded-lg bg-white/10">
                     <HiOutlineLocationMarker className="text-[#D9FF3F] text-lg" />
                   </span>
                   <span className="font-medium">New York, NY</span>
                 </div>
-              </li>
+              </li> */}
             </ul>
           </div>
 
