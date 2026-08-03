@@ -66,6 +66,9 @@ export default function HelpPage() {
   const [submitted, setSubmitted] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [referenceId, setReferenceId] = useState("");
   const fileInputRef = useRef(null);
 
   const validate = () => {
@@ -96,14 +99,55 @@ export default function HelpPage() {
     if (file) handleFile(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError("");
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
-    setSubmitted(true);
+    
+    setLoading(true);
+    try {
+      const payload = {
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        company: form.company,
+        subject: form.subject,
+        message: form.message,
+      };
+
+      if (form.attachment) {
+        payload.attachment = {
+          fileName: form.attachment.name,
+          fileUrl: `https://mock-storage.briqmed.com/uploads/${Date.now()}-${form.attachment.name}`,
+          fileType: form.attachment.type,
+          fileSize: form.attachment.size,
+        };
+      }
+
+      const res = await fetch("/api/help", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setReferenceId(data.data?.ticketId || "TKT-UNKNOWN");
+        setSubmitted(true);
+      } else {
+        setSubmitError(data.message || "Validation failed.");
+      }
+    } catch (err) {
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactItems = [
@@ -596,6 +640,11 @@ export default function HelpPage() {
                     </div>
 
                     {/* Submit */}
+                    {submitError && (
+                      <div className="text-sm text-red-500 font-medium px-1">
+                        {submitError}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-2 gap-4 flex-wrap">
                       <p className="text-sm font-semibold" style={{ color: NAVY_SOFT }}>
                         By submitting, you agree to our{" "}
@@ -610,29 +659,32 @@ export default function HelpPage() {
                       </p>
                       <motion.button
                         type="submit"
-                        whileHover={{
+                        disabled={loading}
+                        whileHover={loading ? {} : {
                           scale: 1.03,
                           boxShadow: `0 10px 28px -5px ${BLUE}40`,
                         }}
-                        whileTap={{ scale: 0.97 }}
+                        whileTap={loading ? {} : { scale: 0.97 }}
                         transition={{ duration: 0.2 }}
-                        className="inline-flex items-center gap-2.5 font-semibold px-6 py-3 rounded-full text-white text-sm transition-colors duration-300 w-full sm:w-auto justify-center"
+                        className="inline-flex items-center gap-2.5 font-semibold px-6 py-3 rounded-full text-white text-sm transition-colors duration-300 w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ backgroundColor: BLUE }}
                       >
-                        Submit Ticket
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2.2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"
-                          />
-                        </svg>
+                        {loading ? "Submitting..." : "Submit Ticket"}
+                        {!loading && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M17 8l4 4m0 0l-4 4m4-4H3"
+                            />
+                          </svg>
+                        )}
                       </motion.button>
                     </div>
                   </motion.form>
@@ -692,7 +744,7 @@ export default function HelpPage() {
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: GOLD }}
                       />
-                      Reference: TKT-{Math.random().toString(36).slice(2, 8).toUpperCase()}
+                      Reference: {referenceId}
                     </div>
 
                     <motion.button

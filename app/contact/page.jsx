@@ -72,6 +72,8 @@ export default function ContactPage() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const validate = () => {
     const e = {};
@@ -89,11 +91,32 @@ export default function ContactPage() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError("");
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setSubmitted(true);
+    
+    setLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(data.message || "Validation failed.");
+      }
+    } catch (err) {
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -390,6 +413,11 @@ export default function ContactPage() {
                     </ContactField>
 
                     {/* Submit row */}
+                    {submitError && (
+                      <div className="text-sm text-red-500 font-medium px-1">
+                        {submitError}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-2 gap-4 flex-wrap">
                       <p
                         className="text-sm font-semibold"
@@ -407,25 +435,28 @@ export default function ContactPage() {
                       </p>
                       <motion.button
                         type="submit"
-                        whileHover={{
+                        disabled={loading}
+                        whileHover={loading ? {} : {
                           scale: 1.03,
                           boxShadow: `0 10px 28px -5px ${BLUE}40`,
                         }}
-                        whileTap={{ scale: 0.97 }}
+                        whileTap={loading ? {} : { scale: 0.97 }}
                         transition={{ duration: 0.2 }}
-                        className="inline-flex items-center gap-2.5 font-semibold px-6 py-3 rounded-full text-white text-sm w-full sm:w-auto justify-center"
+                        className="inline-flex items-center gap-2.5 font-semibold px-6 py-3 rounded-full text-white text-sm w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ backgroundColor: BLUE }}
                       >
-                        Send Message
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2.2}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
+                        {loading ? "Sending..." : "Send Message"}
+                        {!loading && (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.2}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        )}
                       </motion.button>
                     </div>
                   </motion.form>
