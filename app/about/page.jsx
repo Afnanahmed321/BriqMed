@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import SplitType from "split-type";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,107 +17,90 @@ const NAVBAR_HEIGHT_MOBILE = 64;
 
 const labelClass = "text-xs sm:text-sm md:text-base uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium block";
 
+const GOAL_TEXT = "To make credentialing and enrollment hassle-free, accurate, and fully compliant.";
+const COMMITMENT_TEXT = "We treat every provider as a priority. Whether you are starting a new practice, joining a group, or expanding into new insurance networks, BriqMed ensures your credentialing journey is smooth, efficient, and stress-free.";
+
 export default function AboutEditorialExperience() {
   const containerRef = useRef(null);
 
   const section2Ref = useRef(null);
   const section6Ref = useRef(null);
 
-  const goalWordsRef = useRef(null);
-  const commitmentRef = useRef(null);
+  const goalWordsRef = useRef([]);
+  const commitmentWordsRef = useRef([]);
 
   useEffect(() => {
-    let ctx;
-    const mm = gsap.matchMedia();
+    let ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
 
-    ["goal-trigger", "commitment-trigger"].forEach((id) => {
-      const existing = ScrollTrigger.getById(id);
-      if (existing) existing.kill();
-    });
+      ["goal-trigger", "commitment-trigger"].forEach((id) => {
+        const existing = ScrollTrigger.getById(id);
+        if (existing) existing.kill();
+      });
 
-    const setup = () => {
-      ctx = gsap.context(() => {
-        mm.add(
-          {
-            isMobile: "(max-width: 767px)",
-            isDesktop: "(min-width: 768px)",
-          },
-          (context) => {
-            const { isMobile } = context.conditions;
+      mm.add(
+        {
+          isMobile: "(max-width: 767px)",
+          isDesktop: "(min-width: 768px)",
+        },
+        (context) => {
+          const { isMobile } = context.conditions;
 
-            // ============================================================
-            // SECTION 2: OUR GOAL
-            // ============================================================
-            const goalSplit = new SplitType(goalWordsRef.current, {
-              types: "words",
-              wordClass: "goal-word",
-            });
+          // ============================================================
+          // SECTION 2: OUR GOAL
+          // ============================================================
+          gsap.set(goalWordsRef.current, { color: NAVY_SOFT, fontWeight: 300, opacity: 0.4 });
 
-            gsap.set(goalSplit.words, { color: NAVY_SOFT, fontWeight: 300, opacity: 0.4 });
+          const section2Tl = gsap.timeline({
+            scrollTrigger: {
+              id: "goal-trigger",
+              trigger: section2Ref.current,
+              start: isMobile ? `top ${NAVBAR_HEIGHT_MOBILE}px` : "top top",
+              end: isMobile ? "+=25%" : "+=80%",
+              pin: true,
+              scrub: 0.5,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
 
-            const section2Tl = gsap.timeline({
-              scrollTrigger: {
-                id: "goal-trigger",
-                trigger: section2Ref.current,
-                start: isMobile ? `top ${NAVBAR_HEIGHT_MOBILE}px` : "top top",
-                // Mobile: short pin, just long enough for the words to
-                // finish revealing — then release immediately, no dead space.
-                end: isMobile ? "+=25%" : "+=80%",
-                pin: true,
-                scrub: 0.5,
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-              },
-            });
-
-            goalSplit.words.forEach((word, i) => {
+          goalWordsRef.current.forEach((word, i) => {
+            if (word) {
               section2Tl.to(
                 word,
                 { color: NAVY, fontWeight: 400, opacity: 1, duration: 0.4, ease: "none" },
                 i * 0.05
               );
-            });
+            }
+          });
 
-            // ============================================================
-            // SECTION 6: OUR COMMITMENT
-            // ============================================================
-            const commitmentSplit = new SplitType(commitmentRef.current, {
-              types: "words",
-              wordClass: "commitment-word",
-            });
+          // ============================================================
+          // SECTION 6: OUR COMMITMENT
+          // ============================================================
+          gsap.set(commitmentWordsRef.current, { color: NAVY_SOFT, fontWeight: 300, opacity: 0.4 });
 
-            gsap.set(commitmentSplit.words, { color: NAVY_SOFT, fontWeight: 300, opacity: 0.4 });
-
-            gsap.timeline({
-              scrollTrigger: {
-                id: "commitment-trigger",
-                trigger: section6Ref.current,
-                start: isMobile ? `top ${NAVBAR_HEIGHT_MOBILE}px` : "top top",
-                end: isMobile ? "+=35%" : "+=100%",
-                pin: true,
-                scrub: 0.8,
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-              },
-            }).to(commitmentSplit.words, {
-              color: NAVY,
-              fontWeight: 400,
-              opacity: 1,
-              duration: 0.3,
-              stagger: 0.02,
-              ease: "power1.out",
-            });
-
-            return () => {
-              goalSplit.revert();
-              commitmentSplit.revert();
-            };
-          }
-        );
-      }, containerRef);
-    };
-
-    setup();
+          gsap.timeline({
+            scrollTrigger: {
+              id: "commitment-trigger",
+              trigger: section6Ref.current,
+              start: isMobile ? `top ${NAVBAR_HEIGHT_MOBILE}px` : "top top",
+              end: isMobile ? "+=35%" : "+=100%",
+              pin: true,
+              scrub: 0.8,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          }).to(commitmentWordsRef.current, {
+            color: NAVY,
+            fontWeight: 400,
+            opacity: 1,
+            duration: 0.3,
+            stagger: 0.02,
+            ease: "power1.out",
+          });
+        }
+      );
+    }, containerRef);
 
     const refresh = () => ScrollTrigger.refresh();
     if (document.fonts) document.fonts.ready.then(refresh);
@@ -128,8 +110,7 @@ export default function AboutEditorialExperience() {
     return () => {
       window.removeEventListener("load", refresh);
       clearTimeout(fallbackTimer);
-      mm.revert();
-      if (ctx) ctx.revert();
+      ctx.revert();
     };
   }, []);
 
@@ -167,11 +148,17 @@ export default function AboutEditorialExperience() {
           <span className={labelClass} style={{ color: GOLD }}>
             Our Goal is simple
           </span>
-          <h2
-            ref={goalWordsRef}
-            className="text-2xl sm:text-3xl md:text-5xl font-light leading-[1.4] md:leading-[1.3]"
-            dangerouslySetInnerHTML={{ __html: "To make credentialing and enrollment hassle-free, accurate, and fully compliant." }}
-          />
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-light leading-[1.4] md:leading-[1.3]">
+            {GOAL_TEXT.split(" ").map((word, i) => (
+              <span
+                key={i}
+                ref={(el) => (goalWordsRef.current[i] = el)}
+                className="inline-block mr-[0.25em]"
+              >
+                {word}
+              </span>
+            ))}
+          </h2>
         </div>
       </section>
 
@@ -256,11 +243,17 @@ export default function AboutEditorialExperience() {
           <span className={labelClass} style={{ color: GOLD }}>
             Our Commitment
           </span>
-          <p
-            ref={commitmentRef}
-            className="text-xl sm:text-2xl md:text-4xl font-light leading-[1.5] md:leading-[1.4]"
-            dangerouslySetInnerHTML={{ __html: "We treat every provider as a priority. Whether you are starting a new practice, joining a group, or expanding into new insurance networks, BriqMed ensures your credentialing journey is smooth, efficient, and stress-free." }}
-          />
+          <p className="text-xl sm:text-2xl md:text-4xl font-light leading-[1.5] md:leading-[1.4]">
+            {COMMITMENT_TEXT.split(" ").map((word, i) => (
+              <span
+                key={i}
+                ref={(el) => (commitmentWordsRef.current[i] = el)}
+                className="inline-block mr-[0.25em]"
+              >
+                {word}
+              </span>
+            ))}
+          </p>
         </div>
       </section>
     </div>

@@ -13,6 +13,11 @@ const gentium = Gentium_Book_Plus({
 export const metadata = {
   title: "BRIQMED - Provider Enrollment & Credentialing",
   description: "Provider Enrollment & Credentialing Services",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

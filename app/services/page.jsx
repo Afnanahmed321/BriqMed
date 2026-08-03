@@ -284,13 +284,13 @@ export default function HealthcareStorytellingEditorial() {
       </div>
 
       {/* --- STORY CHAPTERS --- */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-0 lg:py-0 lg:px-0">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-4 lg:py-0 lg:px-0">
         {SECTIONS.map((section, index) => {
           const isEven = index % 2 === 0;
           return (
             <section
               key={section.id}
-              className="story-chapter relative w-full lg:min-h-screen lg:min-h-[100dvh] flex items-center justify-center py-0 sm:py-1 lg:py-0 transition-colors duration-500 border-b border-gray-100 last:border-b-0 lg:border-b-0"
+              className="story-chapter relative w-full lg:min-h-screen lg:min-h-[100dvh] flex items-center justify-center py-10 sm:py-14 lg:py-0 transition-colors duration-500 border-b border-gray-100 last:border-b-0 lg:border-b-0"
               style={{ backgroundColor: WHITE }}
             >
               {/* Centered Intro View - ONLY on Desktop */}
@@ -303,7 +303,7 @@ export default function HealthcareStorytellingEditorial() {
                     className="text-xs sm:text-sm font-mono tracking-widest px-4 py-1.5 rounded-md border shadow-sm"
                     style={{ color: GOLD, backgroundColor: `${NAVY}05`, borderColor: `${GOLD}40` }}
                   >
-                    CHAPTER {section.number}
+                    SERVICE {section.number}
                   </span>
                   <div className="h-[1px] w-12 sm:w-20" style={{ background: `linear-gradient(to right, ${GOLD}88, transparent)` }} />
                 </div>
@@ -333,7 +333,7 @@ export default function HealthcareStorytellingEditorial() {
                     className="text-[11px] font-mono tracking-wider px-3 py-1 rounded border"
                     style={{ color: GOLD, backgroundColor: `${NAVY}05`, borderColor: `${GOLD}30` }}
                   >
-                    CHAPTER {section.number}
+                    SERVICE {section.number}
                   </span>
                   <div className="h-px flex-grow" style={{ backgroundColor: `${NAVY}10` }} />
                 </div>
