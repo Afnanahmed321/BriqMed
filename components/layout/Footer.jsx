@@ -35,7 +35,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://linkedin.com"
+                href="https://www.briqmed.com/website/social/linkedin"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -44,7 +44,7 @@ export default function Footer() {
                 <FaLinkedinIn size={16} />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.briqmed.com/website/social/facebook"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -53,7 +53,7 @@ export default function Footer() {
                 <FaFacebookF size={16} />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://www.briqmed.com/website/social/twitter"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X (Twitter)"
@@ -121,14 +121,6 @@ export default function Footer() {
                   <span className="font-medium">+1 646 341 6783</span>
                 </a>
               </li>
-              {/* <li>
-                <div className="group inline-flex items-center gap-3 text-white">
-                  <span className="p-2 rounded-lg bg-white/10">
-                    <HiOutlineLocationMarker className="text-[#D9FF3F] text-lg" />
-                  </span>
-                  <span className="font-medium">New York, NY</span>
-                </div>
-              </li> */}
             </ul>
           </div>
 
